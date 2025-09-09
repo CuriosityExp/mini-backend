@@ -1,0 +1,106 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model DummyName {
+  dummyId   Int       @id @default(autoincrement())
+  firstName String    @db.VarChar(255)
+  lastName  String    @db.VarChar(255)
+  cTime     DateTime? @db.DateTime(0)
+  cUser     String?   @db.VarChar(255)
+  isDeleted Boolean?
+}
+
+model Post {
+  post_id     String    @id
+  subject     String
+  description String
+  cuser       String
+  ctime       DateTime  @default(now())
+  muser       String?
+  mtime       DateTime
+  duser       String?
+  dtime       DateTime?
+  isDeleted   Boolean   @default(false)
+  usr_id      String
+  User        User      @relation(fields: [usr_id], references: [usr_id])
+
+  @@index([usr_id], map: "Post_usr_id_fkey")
+}
+
+model User {
+  usr_id    String    @id
+  username  String    @unique
+  email     String    @unique
+  password  String
+  ctime     DateTime  @default(now())
+  cuser     String?
+  mtime     DateTime
+  muser     String?
+  dtime     DateTime?
+  duser     String?
+  isDeleted Boolean   @default(false)
+  isAdmin   Int       @default(0)
+  firstName String?
+  lastName  String?
+  Post      Post[]
+}
+
+model AppUser{
+  ausr_id   Int       @id @default(autoincrement())
+  username  String    @unique
+  email     String    @unique
+  password  String
+  ctime     DateTime  @default(now())
+  acusr_id  Int
+  mtime     DateTime?
+  amusr_id  Int?
+  dtime     DateTime?
+  adusr_id  Int?
+  isDeleted Boolean @default(false)
+
+  userRoles AppUserRoles[]
+}
+
+model AppUserRoles{
+  aur_id Int @id @default(autoincrement())
+  ausr_id Int
+  ar_id Int
+  ctime     DateTime  @default(now())
+  acusr_id  Int
+  mtime     DateTime?
+  amusr_id  Int?
+  dtime     DateTime?
+  adusr_id  Int?
+  isDeleted Boolean @default(false)
+
+  // RELATION 1: Links this table's 'ausr_id' field TO the 'AppUser' table's 'ausr_id' field.
+  appUser   AppUser   @relation(fields: [ausr_id], references: [ausr_id])
+  
+  // RELATION 2: Links this table's 'ar_id' field TO the 'AppRole' table's 'ar_id' field.
+  appRole   AppRole   @relation(fields: [ar_id], references: [ar_id])
+
+  @@unique([ausr_id, ar_id])
+}
+
+model AppRole{
+  ar_id Int @id @default(autoincrement())
+  role_code String?
+  role_label String?
+  role_level Int?
+  ctime     DateTime  @default(now())
+  acusr_id  Int
+  mtime     DateTime?
+  amusr_id  Int?
+  dtime     DateTime?
+  adusr_id  Int?
+  isDeleted Boolean @default(false)
+
+  userRoles  AppUserRoles[]
+}
