@@ -64,6 +64,7 @@ model AppUser{
   dtime     DateTime?
   adusr_id  Int?
   isDeleted Boolean @default(false)
+  status    Int @default(0) // 0: Active 1: Inactive
 
   userRoles AppUserRoles[]
 }
