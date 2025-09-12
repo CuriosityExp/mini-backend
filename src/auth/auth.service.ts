@@ -3,6 +3,8 @@
 import { ConflictException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { CreateAppUserDto } from 'src/users/dto/create-user.dto';
+import { UserService } from 'src/users/users.service';
 
 @Injectable()
 export class AuthService {
@@ -34,25 +36,5 @@ export class AuthService {
     return {
       access_token: await this.jwtService.signAsync(payload),
     };
-  }
-
-  async signUp(
-    createUserDto: any
-  ){
-    try {
-      
-      const newUser = await this.prisma.appUser.create({
-        data: {
-          ...createUserDto,
-          acusr_id: 0
-        }
-      })
-      return newUser;
-    } catch (error) {
-      if (error.code === 'P2002') { // Prisma unique constraint violation
-        throw new ConflictException('Username or email already exists.');
-      }
-      throw error
-    }
   }
 }
